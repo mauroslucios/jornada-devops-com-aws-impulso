@@ -16,7 +16,7 @@ wget https://github.com/denilsonbonatti/linux-site-dio/archive/refs/heads/main.z
 
 echo "Descompactando main.zip"
 unzip main.zip
-cd linux-site-dio
+cd linux-site-dio-main
 
 echo "Movendo linux-site-dio para /var/www/html"
 cp -R * /var/www/html/
