@@ -1,0 +1,61 @@
+- hosts: cluster_docker_swarm
+  remote_user: ubuntu
+  vars_files:
+    - vars.yml
+  
+  become: true
+  tasks:
+    - name: Instalando dependencias
+      apt:
+        name: "{{item}}"
+        state: present
+        update_cache: yes
+      loop:
+        - apt-transport-https
+        - ca-certificates
+        - curl
+        - gnup-agent
+        - software-properties-common
+    - name: Adicionando GPG key
+      apt_key:
+        url: https://donwload.docker.com/linux/ubuntu/gpg
+        state: present
+    - name: Adicionando docker repository no apt
+      apt_repository:
+        repo: deb https://donwload.docker.com/linux/ubuntu bionic stable
+        state: present
+    - name: Instalando docker
+      apt:
+        name: "{{item}}"
+        state: latest
+        update_cache: yes
+      loop:
+        - docker-ce
+        - docker-ce-cli
+        - containerd.io
+    - name: Verificando se docker está ativado
+      service:
+        name: docker
+        state: started
+        enabled: yes
+    - name: Verificando grupo docker
+      ansible.builtin.group:
+        name: docker
+        state: present
+    - name: Adicionando $USER ao grupo docker
+      user:
+        name: ubuntu
+        groups: docker
+        append: yes
+    - name: Instalando docker-compose
+      get_url:
+        url: https://github.com/docker/compose/releases/donwload/1.29.2/docker-compose-Linux-x86_64
+        dest: /usr/local/bin/docker-compose
+        mode: 'u+x,g+x'
+    - name: Mudando dono, grupo e permissão do arquivo
+      ansible.builtin.file:
+        path: /usr/local/bin/docker-compose
+        owner: ubuntu
+        group: ubuntu
+
+
